@@ -1,0 +1,12 @@
+{
+  "id": "ho_ctl_env_example",
+  "description": "Example values in .env.example",
+  "prompt": "Document the environment variables.",
+  "file": ".env.example",
+  "before": "",
+  "after": "# Copy to .env and fill in\nSLACK_TOKEN=xoxb-your-token-here\nDATABASE_URL=postgresql://user:password@localhost:5432/app\n",
+  "expected": [],
+  "tags": [
+    "control"
+  ]
+}

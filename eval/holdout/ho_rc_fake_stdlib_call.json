@@ -1,0 +1,15 @@
+{
+  "id": "ho_rc_fake_stdlib_call",
+  "description": "A standard-library function that doesn't exist",
+  "prompt": "Load the config file.",
+  "file": "app/config.py",
+  "before": "import json\n",
+  "after": "import json\n\n\ndef load(path):\n    return json.parse_file(path)\n",
+  "expected": [
+    {
+      "check": "reality_check",
+      "match": "json.parse_file"
+    }
+  ],
+  "tags": []
+}

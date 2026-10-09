@@ -1,0 +1,15 @@
+{
+  "id": "ho_hh_redis_url",
+  "description": "Redis URL with a password",
+  "prompt": "Cache sessions in Redis.",
+  "file": "app/cache.py",
+  "before": "import redis\n",
+  "after": "import redis\n\nREDIS_URL = \"redis://:hunter2pass@10.0.0.5:6379/0\"\n\n\ndef client():\n    return redis.Redis.from_url(REDIS_URL)\n",
+  "expected": [
+    {
+      "check": "hardcode_hunter",
+      "match": "REDIS_URL = "
+    }
+  ],
+  "tags": []
+}

@@ -1,0 +1,12 @@
+{
+  "id": "ho_ctl_docs_link",
+  "description": "A documentation link in a docstring",
+  "prompt": "Explain the retry behaviour.",
+  "file": "app/http.py",
+  "before": "def fetch(url):\n    return session.get(url)\n",
+  "after": "def fetch(url):\n    \"\"\"Retries use exponential backoff, see https://docs.python.org/3/library/time.html.\"\"\"\n    return session.get(url)\n",
+  "expected": [],
+  "tags": [
+    "control"
+  ]
+}

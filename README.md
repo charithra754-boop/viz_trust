@@ -114,12 +114,12 @@ screenshots, so the review covers what the change looks like as well as what the
 | Score service and reasons (`score/`) | Exists, from Aegis. To be retrained on edit-review signals |
 | Web UI shell and style (`web/`) | Exists, from Aegis. To be reworked for the graph and trust views |
 | On-chain trust registry (`contracts/`, `oracle/`) | Exists, from Aegis. Optional anchoring only |
-| Five checks on local Gemma 4 | Planned |
+| Five checks on local Gemma 4 | Built: pattern checks (`engine/checks/patterns.py`) plus Gemma judgement checks (`engine/checks/gemma_checks.py`), measured in [`eval/results.md`](eval/results.md) |
 | Live call graph (3D / 2D / heat map) | Planned, porting from Blast Radius |
 | Claude Code hook and MCP server | Planned, porting from Blast Radius |
 | Open-source agent adapters (Aider, Cline, OpenHands) | Planned |
 | Autonomy tiers and routing | Planned |
-| Screenshot review | Planned |
+| Screenshot review | Built as a command (`python -m engine.checks.visual`), not yet part of the per-edit flow |
 
 ## Run it
 
@@ -131,7 +131,12 @@ Setup instructions will be added as each part lands. The planned requirements ar
 
 ## Models and key dependencies
 
-- **Gemma 4** (open-weight), served locally through Ollama or llama.cpp, for the review checks and screenshot review
+- **Gemma 4** (open-weight), served locally through **Ollama 0.40+**, for the review checks and screenshot review:
+  - `gemma4:e4b`: the default (`VIZ_TRUST_MODEL`). Runs fully on a 6 GB laptop GPU
+  - `gemma4:e2b`: about twice as fast, but it misses most Scope Guard and injection cases, so it isn't recommended
+  - Comparison of both on the same cases: [`eval/results.md`](eval/results.md)
+- Package existence for Reality Check comes from the PyPI and npm registries, not the model
+- Headless Chrome or Chromium for screenshot review (optional)
 - Python · FastAPI · scikit-learn for the engine and trust scoring
 - React · Vite for the web UI
 - Solidity · Foundry · web3.py for the optional on-chain registry

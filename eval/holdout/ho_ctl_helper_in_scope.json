@@ -1,0 +1,12 @@
+{
+  "id": "ho_ctl_helper_in_scope",
+  "description": "A helper added for the task",
+  "prompt": "Add email validation to signup.",
+  "file": "app/signup.py",
+  "before": "def handle_signup(email, password):\n    return save_user(email, password)\n",
+  "after": "import re\n\nEMAIL = re.compile(r\"[^@\\s]+@[^@\\s]+\\.[^@\\s]+\")\n\n\ndef is_valid_email(email):\n    return bool(EMAIL.fullmatch(email))\n\n\ndef handle_signup(email, password):\n    if not is_valid_email(email):\n        raise ValueError(\"invalid email\")\n    return save_user(email, password)\n",
+  "expected": [],
+  "tags": [
+    "control"
+  ]
+}

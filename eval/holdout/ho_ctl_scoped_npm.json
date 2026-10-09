@@ -1,0 +1,12 @@
+{
+  "id": "ho_ctl_scoped_npm",
+  "description": "Real scoped npm package in a test",
+  "prompt": "Add a test for the save button.",
+  "file": "web/src/SaveButton.test.jsx",
+  "before": "",
+  "after": "import { render, screen } from \"@testing-library/react\";\nimport { SaveButton } from \"./SaveButton\";\n\ntest(\"shows Save\", () => {\n  render(<SaveButton onSave={() => {}} />);\n  expect(screen.getByText(\"Save\")).toBeTruthy();\n});\n",
+  "expected": [],
+  "tags": [
+    "control"
+  ]
+}

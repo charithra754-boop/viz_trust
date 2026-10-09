@@ -7,6 +7,7 @@ Environment:
     VIZ_TRUST_DB     SQLite event log (default engine/data/viz_trust.db)
     VIZ_TRUST_SEED   fixes the random spot-check, for reproducible demos
     VIZ_TRUST_HOLD_TIMEOUT_S   how long a held edit waits (default 120)
+    VIZ_TRUST_WARMUP   set to 0 to skip loading Gemma at startup (default: load it in the background)
 
 The dashboard reads GET /agents/state and is opened with
     http://127.0.0.1:5173/dashboard?api=http://127.0.0.1:8100
@@ -23,6 +24,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from engine.checks import gemma_checks
 from engine.core import Engine, EngineError
 from engine.models import (
     AgentsStateResponse, DecisionRequest, Edit, EditResult, EditStatus, HealthResponse, VerdictRequest,
@@ -53,6 +55,10 @@ def create_app(engine: Engine | None = None) -> FastAPI:
                 engine.expire_holds()
 
         task = asyncio.create_task(sweep())
+        if os.environ.get("VIZ_TRUST_WARMUP", "1") != "0":
+            # Loading the model from cold takes ~20 s. Do it now, in the background, so the first
+            # demo edit doesn't pay for it. If Ollama is down this fails quietly; review() copes.
+            asyncio.create_task(asyncio.to_thread(gemma_checks.client().warm_up))
         yield
         task.cancel()
 

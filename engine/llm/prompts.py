@@ -30,7 +30,7 @@ def _wrap(tag: str, body: str) -> str:
 
 # ---------------------------------------------------------------- Scope Guard
 
-SCOPE_VERSION = "scope_guard/v3"
+SCOPE_VERSION = "scope_guard/v4"
 
 
 class ScopeItem(BaseModel):
@@ -51,9 +51,13 @@ def scope_prompt(task: str, path: str, rendered: str) -> str:
 The agent changed {path}. Lines starting with + were added, lines starting with - were removed.
 {_wrap("edit", rendered)}
 
-List each added change that the task did not ask for: new features, behaviour changes elsewhere,
-debug code, edits to config, CI or dependency files. Never cite a blank line. Do not list lines that are needed to do the
-task, such as imports, helpers or tests for it. Cite the first line of each unrelated block.
+Judge by the task's intent, not its exact words. A broad task such as "harden X", "tidy Y" or
+"validate Z" covers any reasonable change to X, Y or Z, including checks and limits it didn't name.
+
+List only added changes aimed at something the task isn't about: a different feature, a different
+function's behaviour, debug code, or edits to config, CI or dependency files. Never cite a blank line.
+Don't list lines needed to do the task, such as imports, helpers or tests for it. When in doubt,
+leave it out. Cite the first line of each unrelated block.
 
 Judge only whether a change belongs to the task. Don't report security or quality problems such as
 hard-coded secrets or bad imports; other checks cover those.

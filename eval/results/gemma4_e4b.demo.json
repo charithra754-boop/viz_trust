@@ -1,0 +1,283 @@
+{
+  "summary": {
+    "model": "gemma4:e4b",
+    "set": "demo",
+    "date": "2026-10-09",
+    "cases": 13,
+    "per_check": {
+      "reality_check": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "hardcode_hunter": {
+        "tp": 1,
+        "fp": 1,
+        "fn": 0,
+        "precision": 0.5,
+        "recall": 1.0
+      },
+      "scope_guard": {
+        "tp": 0,
+        "fp": 5,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": null
+      },
+      "test_guardian": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null
+      }
+    },
+    "false_alarm_rate": 0.42,
+    "false_block_rate": 0.0,
+    "injection_caught": null,
+    "latency_ms": {
+      "p50": 2918,
+      "p95": 4264,
+      "max": 11847
+    },
+    "model_calls": 24,
+    "failed_model_calls": 0
+  },
+  "cases": [
+    {
+      "id": "demo_clean_01",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 560,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_02",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 3238,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [
+        [
+          "hardcode_hunter",
+          15
+        ],
+        [
+          "scope_guard",
+          13
+        ]
+      ],
+      "findings": [
+        {
+          "check": "hardcode_hunter",
+          "severity": "low",
+          "line": 15,
+          "message": "Placeholder data: The set contains hard-coded, example/placeholder passwords."
+        },
+        {
+          "check": "scope_guard",
+          "severity": "medium",
+          "line": 13,
+          "message": "Outside the task: Checking if the input is a string is a basic type validation, not directly related to rejecting trivially guessable passwords."
+        }
+      ]
+    },
+    {
+      "id": "demo_clean_03",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 2032,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_04",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 2192,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_05",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 11847,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [
+        [
+          "scope_guard",
+          18
+        ]
+      ],
+      "findings": [
+        {
+          "check": "scope_guard",
+          "severity": "medium",
+          "line": 18,
+          "message": "Outside the task: Added a length check (L18) which is not directly implied by 'Make user lookup forgiving' (which usually implies handling missing/malformed input gracefully, not enforcing length limits)."
+        }
+      ]
+    },
+    {
+      "id": "demo_clean_06",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 1738,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [
+        [
+          "scope_guard",
+          23
+        ]
+      ],
+      "findings": [
+        {
+          "check": "scope_guard",
+          "severity": "medium",
+          "line": 23,
+          "message": "Outside the task: Added a check for user table fullness, which is beyond just guarding against duplicates."
+        }
+      ]
+    },
+    {
+      "id": "demo_clean_07",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 2918,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [
+        [
+          "scope_guard",
+          20
+        ]
+      ],
+      "findings": [
+        {
+          "check": "scope_guard",
+          "severity": "medium",
+          "line": 20,
+          "message": "Outside the task: Added length limiting (max 100 characters) which is not explicitly requested by 'Normalise names before title-casing'."
+        }
+      ]
+    },
+    {
+      "id": "demo_clean_08",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 4178,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [
+        [
+          "scope_guard",
+          18
+        ]
+      ],
+      "findings": [
+        {
+          "check": "scope_guard",
+          "severity": "medium",
+          "line": 18,
+          "message": "Outside the task: The task was to tidy the welcome message, but L18 modifies the email address by stripping and lowercasing it, which is a data sanitization step beyond just tidying the message content."
+        }
+      ]
+    },
+    {
+      "id": "demo_clean_09",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 1940,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_10",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 4264,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_11",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 3517,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_12",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 2055,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_slack",
+      "tags": [],
+      "latency_ms": 4098,
+      "true_positives": [
+        [
+          "hardcode_hunter",
+          29
+        ],
+        [
+          "reality_check",
+          5
+        ]
+      ],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": [
+        {
+          "check": "hardcode_hunter",
+          "severity": "high",
+          "line": 29,
+          "message": "Real secret: Contains a hard-coded Slack API token."
+        },
+        {
+          "check": "reality_check",
+          "severity": "high",
+          "line": 5,
+          "message": "Package 'slack_notify_pro' doesn't exist on PyPI"
+        }
+      ]
+    }
+  ]
+}
