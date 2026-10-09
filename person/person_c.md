@@ -73,7 +73,8 @@ This is what lets us answer "how do you know it works?" in judging.
   against the contract and test `review()` directly from `eval/run.py`.
 
 ## Done when
-- [x] `review()` returns correct findings for the Slack-token demo edit and none for the clean edits.
+- [ ] `review()` returns correct findings for the Slack-token demo edit and none for the clean edits.
+      Slack edit: yes. Clean edits: 7 of 12 get none; 5 get one medium Scope Guard finding (eval --set demo).
 - [x] With Ollama stopped, `review()` returns within its timeout with only code-verified findings
       (e.g. a package the index says doesn't exist), and the engine keeps working.
 - [x] All the prompt-injection cases still get flagged.
