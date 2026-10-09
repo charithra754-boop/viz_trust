@@ -1,0 +1,15 @@
+{
+  "id": "ho_hh_windows_path",
+  "description": "Path on one developer's Windows machine",
+  "prompt": "Export the monthly report.",
+  "file": "app/report.py",
+  "before": "import csv\n",
+  "after": "import csv\n\n\ndef export(rows):\n    with open(\"C:\\\\Users\\\\mukul\\\\Desktop\\\\report.csv\", \"w\") as handle:\n        csv.writer(handle).writerows(rows)\n",
+  "expected": [
+    {
+      "check": "hardcode_hunter",
+      "match": "C:\\\\Users\\\\mukul"
+    }
+  ],
+  "tags": []
+}

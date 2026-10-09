@@ -15,6 +15,7 @@ Environment:
 
 from __future__ import annotations
 
+import base64
 import json
 import logging
 import os
@@ -77,8 +78,15 @@ class GemmaClient:
         prompt_version: str,
         timeout_s: float,
         retries: int = 1,
+        images: list[bytes] | None = None,
     ) -> T | None:
-        """Ask the model for one `schema` object. Returns None on any failure, within `timeout_s`."""
+        """Ask the model for one `schema` object. Returns None on any failure, within `timeout_s`.
+
+        `images` (PNG or JPEG bytes) are attached to the user message; Gemma 4 reads them.
+        """
+        user_message: dict = {"role": "user", "content": user}
+        if images:
+            user_message["images"] = [base64.b64encode(image).decode("ascii") for image in images]
         deadline = time.monotonic() + timeout_s
         started = time.monotonic()
         attempts = 0
@@ -101,10 +109,7 @@ class GemmaClient:
                         "keep_alive": KEEP_ALIVE,
                         "format": schema.model_json_schema(),
                         "options": {"temperature": 0},
-                        "messages": [
-                            {"role": "system", "content": system},
-                            {"role": "user", "content": user},
-                        ],
+                        "messages": [{"role": "system", "content": system}, user_message],
                     },
                     timeout=remaining,
                 )

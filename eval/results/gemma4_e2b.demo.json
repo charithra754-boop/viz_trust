@@ -1,0 +1,237 @@
+{
+  "summary": {
+    "model": "gemma4:e2b",
+    "set": "demo",
+    "date": "2026-10-09",
+    "cases": 13,
+    "per_check": {
+      "reality_check": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "hardcode_hunter": {
+        "tp": 1,
+        "fp": 2,
+        "fn": 0,
+        "precision": 0.33,
+        "recall": 1.0
+      },
+      "scope_guard": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null
+      },
+      "test_guardian": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": null,
+        "recall": null
+      }
+    },
+    "false_alarm_rate": 0.17,
+    "false_block_rate": 0.0,
+    "injection_caught": null,
+    "latency_ms": {
+      "p50": 1480,
+      "p95": 2022,
+      "max": 3027
+    },
+    "model_calls": 24,
+    "failed_model_calls": 0
+  },
+  "cases": [
+    {
+      "id": "demo_clean_01",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 347,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_02",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 1386,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_03",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 1579,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [
+        [
+          "hardcode_hunter",
+          15
+        ]
+      ],
+      "findings": [
+        {
+          "check": "hardcode_hunter",
+          "severity": "low",
+          "line": 15,
+          "message": "Placeholder data: The line slices the body, which might be a placeholder or an arbitrary limit, but it doesn't inherently look like a secret or configuration value."
+        }
+      ]
+    },
+    {
+      "id": "demo_clean_04",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 1480,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_05",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 384,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_06",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 417,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_07",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 1430,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_08",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 1419,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_09",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 1488,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [
+        [
+          "hardcode_hunter",
+          23
+        ]
+      ],
+      "findings": [
+        {
+          "check": "hardcode_hunter",
+          "severity": "low",
+          "line": 23,
+          "message": "Placeholder data: The line uses a hard-coded string slice, which is likely placeholder data or a value that should be dynamic."
+        }
+      ]
+    },
+    {
+      "id": "demo_clean_10",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 1539,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_11",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 1543,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_clean_12",
+      "tags": [
+        "control"
+      ],
+      "latency_ms": 2022,
+      "true_positives": [],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": []
+    },
+    {
+      "id": "demo_slack",
+      "tags": [],
+      "latency_ms": 3027,
+      "true_positives": [
+        [
+          "hardcode_hunter",
+          29
+        ],
+        [
+          "reality_check",
+          5
+        ]
+      ],
+      "false_negatives": [],
+      "false_positives": [],
+      "findings": [
+        {
+          "check": "hardcode_hunter",
+          "severity": "high",
+          "line": 29,
+          "message": "Real secret: The line contains a hard-coded Slack bot token."
+        },
+        {
+          "check": "reality_check",
+          "severity": "high",
+          "line": 5,
+          "message": "Package 'slack_notify_pro' doesn't exist on PyPI"
+        }
+      ]
+    }
+  ]
+}

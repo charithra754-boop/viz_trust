@@ -2,7 +2,16 @@
 
     python eval/run.py                          # default model (VIZ_TRUST_MODEL or gemma4:e4b)
     python eval/run.py --model gemma4:e2b
-    python eval/run.py --model gemma4:e4b --write   # also save eval/results/<model>.json and update results.md
+    python eval/run.py --set holdout            # the held-out cases (see below)
+    python eval/run.py --model gemma4:e4b --write   # also save eval/results/<model>.<set>.json and update results.md
+
+Two case sets:
+- dev (eval/cases/): used while building the checks. Some code rules were written after looking at
+  these results, so the numbers are optimistic.
+- holdout (eval/holdout/): written after the checks were frozen and never used for tuning. Quote
+  these numbers. If a holdout result leads to a change, move that case into dev and write new ones.
+- demo: the scripted edits from demo/edits.py, so the live demo can't silently regress. The clean
+  edits must get no findings; the Slack edit must be caught.
 
 A finding counts as a hit when its check matches an expected finding and it cites the expected line
 (within LINE_TOLERANCE). Expected lines are given by their text in the case file, so a case can't
@@ -35,7 +44,7 @@ from engine.checks import gemma_checks  # noqa: E402
 from engine.llm.client import DEFAULT_MODEL, GemmaClient  # noqa: E402
 from engine.models import Edit  # noqa: E402
 
-CASES_DIR = Path(__file__).parent / "cases"
+CASE_SETS = {"dev": Path(__file__).parent / "cases", "holdout": Path(__file__).parent / "holdout", "demo": None}
 RESULTS_DIR = Path(__file__).parent / "results"
 RESULTS_MD = Path(__file__).parent / "results.md"
 
@@ -47,6 +56,8 @@ FAKE_SECRETS = {
     "{{FAKE_AWS_KEY_ID}}": "AK" + "IA4F7Q2JX9LMN3BZQT",
     "{{FAKE_AWS_SECRET}}": "q8Hk2vNz7Xr5Lp1T" + "w9Ys4Bd6Fg3Jm0Qc2Ve8Ra5U",
     "{{FAKE_OPENAI_KEY}}": "sk-" + "proj-7fK2mQ9xLz4Rv8Tn1Wb6Yc3" + "Hd5Js0Pg2Ue7Ai4Ko9Ls",
+    "{{FAKE_GITHUB_TOKEN}}": "gh" + "p_" + "R7mK2pX9vL4qT8nW1bY6cH3dJ5sF0gU2eA7i",
+    "{{FAKE_STRIPE_KEY}}": "sk_" + "live_" + "51Hx7Kq2Lm9Pz4Rv8Tn1Wb6Yc3Hd5Js0Pg2Ue7Ai",
 }
 
 CHECKS = ["reality_check", "hardcode_hunter", "scope_guard", "test_guardian"]
@@ -60,6 +71,24 @@ def load_case(path: Path) -> dict:
     for placeholder, value in FAKE_SECRETS.items():
         text = text.replace(placeholder, value)
     return json.loads(text)
+
+
+def demo_cases() -> list[dict]:
+    """The demo driver's scripted edits, as cases."""
+    from demo import edits
+
+    cases = [
+        dict(id=f"demo_clean_{i:02d}", prompt=s.prompt, file=s.file, before=s.before, after=s.after,
+             expected=[], tags=["control"])
+        for i, s in enumerate(edits.clean_edits(), start=1)
+    ]
+    slack = edits.slack_edit()
+    cases.append(dict(
+        id="demo_slack", prompt=slack.prompt, file=slack.file, before=slack.before, after=slack.after, tags=[],
+        expected=[{"check": "hardcode_hunter", "match": edits.FAKE_SLACK_TOKEN},
+                  {"check": "reality_check", "match": "import slack_notify_pro"}],
+    ))
+    return cases
 
 
 def expected_line(case: dict, expected: dict) -> int:
@@ -99,7 +128,7 @@ def run_case(case: dict) -> dict:
     }
 
 
-def summarise(results: list[dict], model: str, calls: list) -> dict:
+def summarise(results: list[dict], model: str, calls: list, case_set: str) -> dict:
     per_check = {}
     for check in CHECKS:
         tp = sum(1 for r in results for c, _ in r["true_positives"] if c == check)
@@ -119,6 +148,7 @@ def summarise(results: list[dict], model: str, calls: list) -> dict:
 
     return {
         "model": model,
+        "set": case_set,
         "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "cases": len(results),
         "per_check": per_check,
@@ -141,7 +171,7 @@ def summarise(results: list[dict], model: str, calls: list) -> dict:
 def to_markdown(summary: dict) -> str:
     fmt = lambda v: "n/a" if v is None else f"{v:.2f}"  # noqa: E731
     lines = [
-        f"### `{summary['model']}` ({summary['date']}, {summary['cases']} cases)",
+        f"### `{summary['model']}`, {summary.get('set', 'dev')} set ({summary['date']}, {summary['cases']} cases)",
         "",
         "| Check | Precision | Recall | Hits | False alarms | Misses |",
         "| --- | --- | --- | --- | --- | --- |",
@@ -164,6 +194,7 @@ def to_markdown(summary: dict) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--model", default=None, help=f"Ollama model tag (default: $VIZ_TRUST_MODEL or {DEFAULT_MODEL})")
+    parser.add_argument("--set", default="dev", choices=sorted(CASE_SETS), help="which cases to run (default: dev)")
     parser.add_argument("--only", default=None, help="run only cases whose id starts with this")
     parser.add_argument("--write", action="store_true", help="save results/<model>.json and update results.md")
     args = parser.parse_args()
@@ -175,7 +206,10 @@ def main() -> None:
     print(f"warming up {client.model}...", flush=True)
     client.warm_up()
 
-    cases = [load_case(p) for p in sorted(CASES_DIR.glob("*.json"))]
+    if args.set == "demo":
+        cases = demo_cases()
+    else:
+        cases = [load_case(p) for p in sorted(CASE_SETS[args.set].glob("*.json"))]
     if args.only:
         cases = [c for c in cases if c["id"].startswith(args.only)]
 
@@ -187,24 +221,28 @@ def main() -> None:
         print(f"  {status} {case['id']:<26} {result['latency_ms']:>6} ms  "
               f"missed={result['false_negatives'] or '-'} extra={result['false_positives'] or '-'}", flush=True)
 
-    summary = summarise(results, client.model, client.records)
+    summary = summarise(results, client.model, client.records, args.set)
     print()
     print(to_markdown(summary))
 
     if args.write:
         RESULTS_DIR.mkdir(exist_ok=True)
         slug = client.model.replace(":", "_").replace("/", "_")
-        (RESULTS_DIR / f"{slug}.json").write_text(json.dumps({"summary": summary, "cases": results}, indent=2) + "\n")
+        (RESULTS_DIR / f"{slug}.{args.set}.json").write_text(json.dumps({"summary": summary, "cases": results}, indent=2) + "\n")
         sections = {}
         for path in sorted(RESULTS_DIR.glob("*.json")):
             saved = json.loads(path.read_text())["summary"]
-            sections[saved["model"]] = to_markdown(saved)
+            order = {"holdout": 0, "demo": 1, "dev": 2}.get(saved.get("set", "dev"), 3)
+            sections[(order, saved["model"])] = to_markdown(saved)
         header = (
             "# Gemma check evaluation\n\n"
-            "Generated by `python eval/run.py --write`. Don't edit by hand.\n"
-            "Cases are in `eval/cases/`. Impact Analyst isn't here: it has no model call (see the engine).\n\n"
+            "Generated by `python eval/run.py --write`. Don't edit by hand.\n\n"
+            "- **holdout** (`eval/holdout/`): never used for tuning. **These are the numbers to quote.**\n"
+            "- **demo**: the scripted demo edits. Clean ones must get no findings.\n"
+            "- **dev** (`eval/cases/`): used while building the checks, so optimistic.\n\n"
+            "Impact Analyst isn't here: it has no model call (see the engine).\n\n"
         )
-        RESULTS_MD.write_text(header + "\n".join(sections[m] for m in sorted(sections)))
+        RESULTS_MD.write_text(header + "\n".join(sections[key] for key in sorted(sections)))
         print(f"wrote {RESULTS_MD.relative_to(ROOT)}")
 
 

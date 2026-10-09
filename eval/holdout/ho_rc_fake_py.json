@@ -1,0 +1,15 @@
+{
+  "id": "ho_rc_fake_py",
+  "description": "Invented FastAPI auth package",
+  "prompt": "Protect the admin routes.",
+  "file": "app/admin.py",
+  "before": "from fastapi import APIRouter\n",
+  "after": "from fastapi import APIRouter\nfrom fastapi_auth_magic import protect\n\nrouter = APIRouter()\n\n\n@router.get(\"/admin\")\n@protect(role=\"admin\")\ndef admin_home():\n    return {\"ok\": True}\n",
+  "expected": [
+    {
+      "check": "reality_check",
+      "match": "from fastapi_auth_magic"
+    }
+  ],
+  "tags": []
+}

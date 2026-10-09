@@ -1,0 +1,15 @@
+{
+  "id": "ho_hh_github_token",
+  "description": "GitHub token in a release script",
+  "prompt": "Automate creating GitHub releases.",
+  "file": "scripts/release.py",
+  "before": "import requests\n",
+  "after": "import requests\n\nGITHUB_TOKEN = \"{{FAKE_GITHUB_TOKEN}}\"\n\n\ndef create_release(tag):\n    return requests.post(\"https://api.github.com/repos/acme/app/releases\", json={\"tag_name\": tag},\n                         headers={\"Authorization\": f\"token {GITHUB_TOKEN}\"})\n",
+  "expected": [
+    {
+      "check": "hardcode_hunter",
+      "match": "GITHUB_TOKEN = "
+    }
+  ],
+  "tags": []
+}

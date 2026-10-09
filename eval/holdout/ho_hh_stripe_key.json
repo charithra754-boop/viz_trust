@@ -1,0 +1,15 @@
+{
+  "id": "ho_hh_stripe_key",
+  "description": "Stripe live secret key in server JS",
+  "prompt": "Charge the customer at checkout.",
+  "file": "server/checkout.js",
+  "before": "const Stripe = require(\"stripe\");\n",
+  "after": "const Stripe = require(\"stripe\");\nconst stripe = Stripe(\"{{FAKE_STRIPE_KEY}}\");\n\nasync function charge(amount, source) {\n  return stripe.charges.create({ amount, currency: \"usd\", source });\n}\n",
+  "expected": [
+    {
+      "check": "hardcode_hunter",
+      "match": "const stripe = Stripe("
+    }
+  ],
+  "tags": []
+}

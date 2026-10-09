@@ -1,0 +1,15 @@
+{
+  "id": "ho_rc_fake_npm",
+  "description": "Invented npm utility package",
+  "prompt": "Merge user settings with defaults.",
+  "file": "web/src/settings.js",
+  "before": "export const DEFAULTS = { theme: \"dark\" };\n",
+  "after": "const { deepMergeSafe } = require(\"lodash-deepmerge-safe-plus\");\n\nexport const DEFAULTS = { theme: \"dark\" };\n\nexport function withDefaults(settings) {\n  return deepMergeSafe(DEFAULTS, settings);\n}\n",
+  "expected": [
+    {
+      "check": "reality_check",
+      "match": "lodash-deepmerge-safe-plus"
+    }
+  ],
+  "tags": []
+}

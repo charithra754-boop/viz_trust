@@ -1,6 +1,7 @@
-// The landing page's agent cards. Static on purpose -- the live version is /dashboard -- but
-// read from docs/api_stub.json at build time so the numbers can never drift from the demo.
-import stub from "../../../docs/api_stub.json";
+// The landing page's agent cards. Static on purpose -- the live version is /dashboard.
+// Read from a frozen copy of the original Aegis sample (landingSample.json), not docs/api_stub.json:
+// that file now follows the engine contract and no longer has Hirer / HonestAgent / SloppyAgent.
+import stub from "./landingSample.json";
 import { EVENT_LABELS, shortAddress, signed } from "../lib/format.js";
 import { FLASHCARD_QUOTES } from "./flashcards.js";
 
